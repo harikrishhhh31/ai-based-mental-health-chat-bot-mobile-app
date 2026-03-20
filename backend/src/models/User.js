@@ -20,14 +20,24 @@ const UserSchema = new mongoose.Schema(
             type: String,
             required: true,
             minlength: 6,
-            select: false, // Don't return password by default
+            select: false,
         },
-        // Future expansion: we can add things like 'preferences' or 'emergencyContact' here
+        isEmailVerified: {
+            type: Boolean,
+            default: false,
+        },
+        emailVerificationToken: {
+            type: String,
+            select: false,
+        },
+        emailVerificationExpires: {
+            type: Date,
+            select: false,
+        },
     },
     { timestamps: true }
 );
 
-// Encrypt password using bcrypt before saving
 UserSchema.pre('save', async function (next) {
     if (!this.isModified('password')) {
         next();
@@ -37,7 +47,6 @@ UserSchema.pre('save', async function (next) {
     this.password = await bcrypt.hash(this.password, salt);
 });
 
-// Match user entered password to hashed password in database
 UserSchema.methods.matchPassword = async function (enteredPassword) {
     return await bcrypt.compare(enteredPassword, this.password);
 };

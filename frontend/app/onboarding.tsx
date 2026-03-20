@@ -6,6 +6,7 @@ import OnboardingScreenUI from '../src/screens/OnboardingScreen';
 export default function Onboarding() {
     const router = useRouter();
     return <OnboardingScreenUI navigation={{
+        goBack: () => router.back(),
         replace: (screen: any) => router.replace(`/${screen.toLowerCase()}`),
         navigate: (screen: any) => router.push(`/${screen.toLowerCase()}`),
     }} />;

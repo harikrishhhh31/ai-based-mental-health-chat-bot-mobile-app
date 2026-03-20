@@ -1,9 +1,7 @@
 const User = require('../models/User');
 const generateToken = require('../utils/generateToken');
+const { sendVerificationEmail, sendWelcomeEmail } = require('../services/email.service');
 
-// @desc    Register a new user
-// @route   POST /api/auth/register
-// @access  Public
 const registerUser = async (req, res) => {
     const { name, email, password } = req.body;
 
@@ -21,10 +19,14 @@ const registerUser = async (req, res) => {
         });
 
         if (user) {
+            await sendWelcomeEmail(user);
+            await sendVerificationEmail(user);
+            
             res.status(201).json({
                 _id: user._id,
                 name: user.name,
                 email: user.email,
+                isEmailVerified: user.isEmailVerified,
                 token: generateToken(user._id),
             });
         } else {
@@ -35,14 +37,10 @@ const registerUser = async (req, res) => {
     }
 };
 
-// @desc    Auth user & get token (Login)
-// @route   POST /api/auth/login
-// @access  Public
 const loginUser = async (req, res) => {
     const { email, password } = req.body;
 
     try {
-        // Find user by email and explicitly select password so we can compare
         const user = await User.findOne({ email }).select('+password');
 
         if (user && (await user.matchPassword(password))) {
@@ -50,6 +48,7 @@ const loginUser = async (req, res) => {
                 _id: user._id,
                 name: user.name,
                 email: user.email,
+                isEmailVerified: user.isEmailVerified,
                 token: generateToken(user._id),
             });
         } else {
@@ -60,9 +59,6 @@ const loginUser = async (req, res) => {
     }
 };
 
-// @desc    Get user profile
-// @route   GET /api/auth/profile
-// @access  Private
 const getUserProfile = async (req, res) => {
     try {
         const user = await User.findById(req.user._id);
@@ -72,6 +68,7 @@ const getUserProfile = async (req, res) => {
                 _id: user._id,
                 name: user.name,
                 email: user.email,
+                isEmailVerified: user.isEmailVerified,
             });
         } else {
             res.status(404).json({ message: 'User not found' });
@@ -81,8 +78,55 @@ const getUserProfile = async (req, res) => {
     }
 };
 
+const verifyEmail = async (req, res) => {
+    const { token } = req.params;
+
+    try {
+        const user = await User.findOne({
+            emailVerificationToken: token,
+            emailVerificationExpires: { $gt: Date.now() },
+        }).select('+emailVerificationToken +emailVerificationExpires');
+
+        if (!user) {
+            return res.status(400).json({ message: 'Invalid or expired verification token' });
+        }
+
+        user.isEmailVerified = true;
+        user.emailVerificationToken = undefined;
+        user.emailVerificationExpires = undefined;
+        await user.save();
+
+        res.json({ message: 'Email verified successfully!' });
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+};
+
+const resendVerification = async (req, res) => {
+    const { email } = req.body;
+
+    try {
+        const user = await User.findOne({ email });
+
+        if (!user) {
+            return res.status(404).json({ message: 'User not found' });
+        }
+
+        if (user.isEmailVerified) {
+            return res.status(400).json({ message: 'Email already verified' });
+        }
+
+        await sendVerificationEmail(user);
+        res.json({ message: 'Verification email sent!' });
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+};
+
 module.exports = {
     registerUser,
     loginUser,
     getUserProfile,
+    verifyEmail,
+    resendVerification,
 };

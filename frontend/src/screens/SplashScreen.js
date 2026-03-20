@@ -1,25 +1,27 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { View, Text, StyleSheet, Animated } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 
 const SplashScreen = ({ navigation }) => {
-    // Animation value starts at 0 (0% progress)
     const progressAnim = useRef(new Animated.Value(0)).current;
+    const [progressText, setProgressText] = useState('0%');
 
     useEffect(() => {
-        // Animate the progress bar from 0 to 100 over 3 seconds
         Animated.timing(progressAnim, {
             toValue: 100,
-            duration: 3000,
-            useNativeDriver: false, // Must be false for width animation
-        }).start(() => {
-            // Once animation finishes, navigate to the Home or Auth screen
-            // navigation.replace('Home');
-        });
-    }, [progressAnim, navigation]);
+            duration: 2500,
+            useNativeDriver: false,
+        }).start();
+    }, [progressAnim]);
 
-    // Interpolate the animated value to a percentage string for the width
+    useEffect(() => {
+        const listener = progressAnim.addListener(({ value }) => {
+            setProgressText(`${Math.round(value)}%`);
+        });
+        return () => progressAnim.removeListener(listener);
+    }, [progressAnim]);
+
     const widthInterpolation = progressAnim.interpolate({
         inputRange: [0, 100],
         outputRange: ['0%', '100%'],
@@ -27,13 +29,11 @@ const SplashScreen = ({ navigation }) => {
 
     return (
         <LinearGradient
-            colors={['#D2F2E2', '#E2FCEE', '#CEF0DF']} // Soft mint/teal gradient matching the design
+            colors={['#D2F2E2', '#E2FCEE', '#CEF0DF']}
             style={styles.container}
         >
             <View style={styles.content}>
-                {/* Logo Container */}
                 <View style={styles.logoCircle}>
-                    {/* Temporary placeholder icon since we don't have the exact asset */}
                     <MaterialCommunityIcons name="shield-check" size={60} color="#155B5C" />
                     <MaterialCommunityIcons
                         name="comment-text"
@@ -43,18 +43,15 @@ const SplashScreen = ({ navigation }) => {
                     />
                 </View>
 
-                {/* Typography */}
                 <Text style={styles.title}>MindCare AI</Text>
                 <Text style={styles.subtitle}>Your AI Companion for Mental</Text>
                 <Text style={styles.subtitle}>Wellness</Text>
             </View>
 
-            {/* Progress Bar Area */}
             <View style={styles.progressContainer}>
                 <View style={styles.progressTextRow}>
                     <Text style={styles.progressLabel}>Finding your calm...</Text>
-                    <Text style={styles.progressPercent}>75%</Text>
-                    {/* Note: In a real app the 75% could be dynamically bound to progressAnim */}
+                    <Text style={styles.progressPercent}>{progressText}</Text>
                 </View>
 
                 <View style={styles.progressBarBackground}>
@@ -120,6 +117,7 @@ const styles = StyleSheet.create({
     },
     progressContainer: {
         width: '80%',
+        alignSelf: 'center',
         paddingBottom: 20,
     },
     progressTextRow: {

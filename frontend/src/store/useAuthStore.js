@@ -3,19 +3,12 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { loginUser, registerUser, getMyProfile } from '../api/client';
 
 const useAuthStore = create((set, get) => ({
-    // ── State ────────────────────────────────────────────────────
-    user: null,        // { _id, name, email }
+    user: null,
     token: null,
     isLoading: false,
     error: null,
     isAuthenticated: false,
 
-    // ── Actions ──────────────────────────────────────────────────
-
-    /**
-     * Register a new user account.
-     * On success, saves JWT and navigates to Home.
-     */
     register: async (name, email, password) => {
         set({ isLoading: true, error: null });
         try {
@@ -23,16 +16,14 @@ const useAuthStore = create((set, get) => ({
             const { token, ...user } = res.data;
             await AsyncStorage.setItem('userToken', token);
             set({ user, token, isAuthenticated: true, isLoading: false });
+            return { success: true, user };
         } catch (err) {
             const message = err.response?.data?.message || 'Registration failed. Please try again.';
-            set({ error: message, isLoading: false });
+            set({ error: message, isLoading: false, isAuthenticated: false });
+            return { success: false, error: message };
         }
     },
 
-    /**
-     * Log in with email and password.
-     * On success, saves JWT to device storage.
-     */
     login: async (email, password) => {
         set({ isLoading: true, error: null });
         try {
@@ -40,15 +31,14 @@ const useAuthStore = create((set, get) => ({
             const { token, ...user } = res.data;
             await AsyncStorage.setItem('userToken', token);
             set({ user, token, isAuthenticated: true, isLoading: false });
+            return { success: true, user };
         } catch (err) {
             const message = err.response?.data?.message || 'Login failed. Check your credentials.';
             set({ error: message, isLoading: false });
+            return { success: false, error: message };
         }
     },
 
-    /**
-     * Restore session on app startup by reading the stored token.
-     */
     restoreSession: async () => {
         try {
             const token = await AsyncStorage.getItem('userToken');
@@ -56,15 +46,11 @@ const useAuthStore = create((set, get) => ({
             const res = await getMyProfile();
             set({ user: res.data, token, isAuthenticated: true });
         } catch {
-            // Token may be expired — clear it
             await AsyncStorage.removeItem('userToken');
             set({ user: null, token: null, isAuthenticated: false });
         }
     },
 
-    /**
-     * Log out the current user.
-     */
     logout: async () => {
         await AsyncStorage.removeItem('userToken');
         set({ user: null, token: null, isAuthenticated: false, error: null });

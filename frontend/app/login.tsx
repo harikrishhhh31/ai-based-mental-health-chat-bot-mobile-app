@@ -24,7 +24,7 @@ export default function Login() {
             error={error}
             clearError={clearError}
             navigation={{
-                goBack: () => router.back(),
+                goBack: () => router.replace('/onboarding'),
                 navigate: (screen: any) => router.push(`/${screen.toLowerCase()}`),
                 replace: (screen: any) => router.replace(`/${screen.toLowerCase()}`),
             }}

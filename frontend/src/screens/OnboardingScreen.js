@@ -83,10 +83,19 @@ const OnboardingScreen = ({ navigation }) => {
 
     return (
         <SafeAreaView style={styles.container}>
-            {/* Skip Button */}
-            <TouchableOpacity style={styles.skipButton} onPress={handleSkip}>
-                <Text style={styles.skipText}>Skip</Text>
-            </TouchableOpacity>
+            {/* Header with Back and Skip */}
+            <View style={styles.header}>
+                <TouchableOpacity 
+                    style={styles.backButton} 
+                    onPress={() => navigation?.goBack?.()}
+                >
+                    <MaterialCommunityIcons name="arrow-left" size={24} color="#0D1E2D" />
+                </TouchableOpacity>
+                <View style={styles.headerSpacer} />
+                <TouchableOpacity style={styles.skipButton} onPress={handleSkip}>
+                    <Text style={styles.skipText}>Skip</Text>
+                </TouchableOpacity>
+            </View>
 
             {/* Slides */}
             <FlatList
@@ -134,11 +143,26 @@ const styles = StyleSheet.create({
         backgroundColor: '#FFFFFF',
         alignItems: 'center',
     },
+    header: {
+        width: '100%',
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        paddingHorizontal: 16,
+        paddingTop: 12,
+    },
+    backButton: {
+        width: 40,
+        height: 40,
+        justifyContent: 'center',
+        alignItems: 'center',
+    },
+    headerSpacer: {
+        width: 40,
+    },
     skipButton: {
-        alignSelf: 'flex-end',
-        paddingHorizontal: 24,
-        paddingTop: 16,
-        paddingBottom: 8,
+        paddingHorizontal: 8,
+        paddingVertical: 8,
     },
     skipText: {
         fontSize: 16,

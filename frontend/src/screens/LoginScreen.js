@@ -7,6 +7,8 @@ import {
     TouchableOpacity,
     SafeAreaView,
     ScrollView,
+    KeyboardAvoidingView,
+    Platform,
 } from 'react-native';
 import { MaterialCommunityIcons, FontAwesome } from '@expo/vector-icons';
 
@@ -23,106 +25,114 @@ const LoginScreen = ({ navigation, onLogin, isLoading, error, clearError }) => {
 
     return (
         <SafeAreaView style={styles.container}>
-            <ScrollView contentContainerStyle={styles.scroll} keyboardShouldPersistTaps="handled">
+            <KeyboardAvoidingView
+                style={styles.keyboardView}
+                behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+                keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : 20}
+            >
+                <ScrollView
+                    contentContainerStyle={styles.scroll}
+                    keyboardShouldPersistTaps="handled"
+                    showsVerticalScrollIndicator={false}
+                >
+                    {/* Header */}
+                    <View style={styles.header}>
+                        <TouchableOpacity onPress={() => navigation?.goBack()} style={styles.backBtn}>
+                            <MaterialCommunityIcons name="arrow-left" size={24} color="#0D1E2D" />
+                        </TouchableOpacity>
+                        <Text style={styles.headerTitle}>MindCare AI</Text>
+                        <View style={{ width: 40 }} />
+                    </View>
 
-                {/* Header */}
-                <View style={styles.header}>
-                    <TouchableOpacity onPress={() => navigation?.goBack()} style={styles.backBtn}>
-                        <MaterialCommunityIcons name="arrow-left" size={24} color="#0D1E2D" />
-                    </TouchableOpacity>
-                    <Text style={styles.headerTitle}>MindCare AI</Text>
-                    <View style={{ width: 40 }} />
-                </View>
+                    {/* Logo badge */}
+                    <View style={styles.logoBadge}>
+                        <MaterialCommunityIcons name="shield-check" size={30} color="#1A8C80" />
+                    </View>
 
-                {/* Logo badge */}
-                <View style={styles.logoBadge}>
-                    <MaterialCommunityIcons name="shield-check" size={30} color="#1A8C80" />
-                </View>
+                    {/* Welcome text */}
+                    <Text style={styles.title}>Welcome Back</Text>
+                    <Text style={styles.subtitle}>Log in to continue your mindfulness{'\n'}journey</Text>
 
-                {/* Welcome text */}
-                <Text style={styles.title}>Welcome Back</Text>
-                <Text style={styles.subtitle}>Log in to continue your mindfulness{'\n'}journey</Text>
-
-                {/* Email */}
-                <Text style={styles.label}>Email or Phone Number</Text>
-                <View style={styles.inputRow}>
-                    <MaterialCommunityIcons name="account-outline" size={20} color="#9EAAB5" style={styles.inputIcon} />
-                    <TextInput
-                        style={styles.input}
-                        placeholder="e.g. name@email.com"
-                        placeholderTextColor="#C0CDD6"
-                        value={email}
-                        onChangeText={setEmail}
-                        keyboardType="email-address"
-                        autoCapitalize="none"
-                    />
-                </View>
-
-                {/* Password */}
-                <View style={styles.passwordLabelRow}>
-                    <Text style={styles.label}>Password</Text>
-                    <TouchableOpacity>
-                        <Text style={styles.forgot}>Forgot Password?</Text>
-                    </TouchableOpacity>
-                </View>
-                <View style={styles.inputRow}>
-                    <MaterialCommunityIcons name="lock-outline" size={20} color="#9EAAB5" style={styles.inputIcon} />
-                    <TextInput
-                        style={styles.input}
-                        placeholder="••••••••"
-                        placeholderTextColor="#C0CDD6"
-                        secureTextEntry={!showPassword}
-                        value={password}
-                        onChangeText={setPassword}
-                    />
-                    <TouchableOpacity onPress={() => setShowPassword(!showPassword)} style={styles.eyeBtn}>
-                        <MaterialCommunityIcons
-                            name={showPassword ? 'eye-off-outline' : 'eye-outline'}
-                            size={20}
-                            color="#9EAAB5"
+                    {/* Email */}
+                    <Text style={styles.label}>Email or Phone Number</Text>
+                    <View style={styles.inputRow}>
+                        <MaterialCommunityIcons name="account-outline" size={20} color="#9EAAB5" style={styles.inputIcon} />
+                        <TextInput
+                            style={styles.input}
+                            placeholder="e.g. name@email.com"
+                            placeholderTextColor="#C0CDD6"
+                            value={email}
+                            onChangeText={setEmail}
+                            keyboardType="email-address"
+                            autoCapitalize="none"
                         />
+                    </View>
+
+                    {/* Password */}
+                    <View style={styles.passwordLabelRow}>
+                        <Text style={styles.label}>Password</Text>
+                        <TouchableOpacity>
+                            <Text style={styles.forgot}>Forgot Password?</Text>
+                        </TouchableOpacity>
+                    </View>
+                    <View style={styles.inputRow}>
+                        <MaterialCommunityIcons name="lock-outline" size={20} color="#9EAAB5" style={styles.inputIcon} />
+                        <TextInput
+                            style={styles.input}
+                            placeholder="••••••••"
+                            placeholderTextColor="#C0CDD6"
+                            secureTextEntry={!showPassword}
+                            value={password}
+                            onChangeText={setPassword}
+                        />
+                        <TouchableOpacity onPress={() => setShowPassword(!showPassword)} style={styles.eyeBtn}>
+                            <MaterialCommunityIcons
+                                name={showPassword ? 'eye-off-outline' : 'eye-outline'}
+                                size={20}
+                                color="#9EAAB5"
+                            />
+                        </TouchableOpacity>
+                    </View>
+
+                    {/* Login button */}
+                    <TouchableOpacity style={styles.loginBtn} onPress={handleLogin}>
+                        <Text style={styles.loginBtnText}>Login</Text>
                     </TouchableOpacity>
-                </View>
 
-                {/* Login button */}
-                <TouchableOpacity style={styles.loginBtn} onPress={handleLogin}>
-                    <Text style={styles.loginBtnText}>Login</Text>
-                </TouchableOpacity>
+                    {/* Divider */}
+                    <View style={styles.dividerRow}>
+                        <View style={styles.divider} />
+                        <Text style={styles.dividerText}>Or continue with</Text>
+                        <View style={styles.divider} />
+                    </View>
 
-                {/* Divider */}
-                <View style={styles.dividerRow}>
-                    <View style={styles.divider} />
-                    <Text style={styles.dividerText}>Or continue with</Text>
-                    <View style={styles.divider} />
-                </View>
+                    {/* Social Buttons */}
+                    <View style={styles.socialRow}>
+                        <TouchableOpacity style={styles.socialBtn}>
+                            <FontAwesome name="google" size={18} color="#DB4437" />
+                            <Text style={styles.socialText}>Google</Text>
+                        </TouchableOpacity>
+                        <TouchableOpacity style={styles.socialBtn}>
+                            <FontAwesome name="apple" size={18} color="#000000" />
+                            <Text style={styles.socialText}>Apple</Text>
+                        </TouchableOpacity>
+                    </View>
 
-                {/* Social Buttons */}
-                <View style={styles.socialRow}>
-                    <TouchableOpacity style={styles.socialBtn}>
-                        <FontAwesome name="google" size={18} color="#DB4437" />
-                        <Text style={styles.socialText}>Google</Text>
-                    </TouchableOpacity>
-                    <TouchableOpacity style={styles.socialBtn}>
-                        <FontAwesome name="apple" size={18} color="#000000" />
-                        <Text style={styles.socialText}>Apple</Text>
-                    </TouchableOpacity>
-                </View>
+                    {/* Sign Up link */}
+                    <View style={styles.signupRow}>
+                        <Text style={styles.signupText}>Don't have an account? </Text>
+                        <TouchableOpacity onPress={() => navigation?.navigate('Register')}>
+                            <Text style={styles.signupLink}>Sign Up</Text>
+                        </TouchableOpacity>
+                    </View>
 
-                {/* Sign Up link */}
-                <View style={styles.signupRow}>
-                    <Text style={styles.signupText}>Don't have an account? </Text>
-                    <TouchableOpacity onPress={() => navigation?.navigate('Register')}>
-                        <Text style={styles.signupLink}>Sign Up</Text>
-                    </TouchableOpacity>
-                </View>
-
-                {/* Security Footer */}
-                <View style={styles.securityRow}>
-                    <MaterialCommunityIcons name="shield-check-outline" size={14} color="#9EAAB5" />
-                    <Text style={styles.securityText}>  Secure 256-bit SSL encrypted connection</Text>
-                </View>
-
-            </ScrollView>
+                    {/* Security Footer */}
+                    <View style={styles.securityRow}>
+                        <MaterialCommunityIcons name="shield-check-outline" size={14} color="#9EAAB5" />
+                        <Text style={styles.securityText}>  Secure 256-bit SSL encrypted connection</Text>
+                    </View>
+                </ScrollView>
+            </KeyboardAvoidingView>
         </SafeAreaView>
     );
 };
@@ -132,16 +142,22 @@ const styles = StyleSheet.create({
         flex: 1,
         backgroundColor: '#F2F5F8',
     },
+    keyboardView: {
+        flex: 1,
+    },
     scroll: {
-        paddingHorizontal: 24,
+        flexGrow: 1,
+        paddingHorizontal: 28,
         paddingBottom: 32,
+        alignItems: 'center',
     },
     header: {
+        width: '100%',
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'space-between',
         paddingTop: 16,
-        marginBottom: 24,
+        marginBottom: 20,
     },
     backBtn: {
         width: 40,
@@ -182,8 +198,10 @@ const styles = StyleSheet.create({
         fontWeight: '600',
         color: '#0D1E2D',
         marginBottom: 8,
+        alignSelf: 'flex-start',
     },
     inputRow: {
+        width: '100%',
         flexDirection: 'row',
         alignItems: 'center',
         backgroundColor: '#FFFFFF',
@@ -209,6 +227,7 @@ const styles = StyleSheet.create({
         padding: 4,
     },
     passwordLabelRow: {
+        width: '100%',
         flexDirection: 'row',
         justifyContent: 'space-between',
         alignItems: 'center',
@@ -220,6 +239,7 @@ const styles = StyleSheet.create({
         fontWeight: '500',
     },
     loginBtn: {
+        width: '100%',
         backgroundColor: '#2BBFB0',
         borderRadius: 50,
         height: 56,
@@ -239,6 +259,7 @@ const styles = StyleSheet.create({
         fontWeight: '700',
     },
     dividerRow: {
+        width: '100%',
         flexDirection: 'row',
         alignItems: 'center',
         marginBottom: 20,
